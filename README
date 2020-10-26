@@ -1,1 +1,9 @@
 The tool is an AgiSoft Metashape Function Wrapper for generating orthomosaic from photogrammetric data.
+
+Syntax:
+python GenerateOrthoImage.py
+
+NOTES:
+a) Python version should be >= 3.7.
+b) Ensure that the following Python Packages exist in your Python Environment: datatime, numpy, pandas, and Metashape.
+c) 

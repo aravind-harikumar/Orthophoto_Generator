@@ -1,9 +1,9 @@
 """
-    :Module:: MetashapeProcessor
-    :Platform: Unix, Windows
-    :Synopsis: A module for generating Orthomosiaic from UAV remote sensing images
-    :Requirement: Agisoft Professional Software    
-    :Author:: Aravind Harikumar <aravindhari1@gmail.com>
+    Module:: MetashapeProcessor
+    Platform: Unix, Windows
+    Synopsis: A module for generating Orthomosiaic from UAV remote sensing images
+    Requirement: Agisoft Professional Software    
+    Author:: Aravind Harikumar <aravindhari1@gmail.com>
 """
 
 import os, sys
@@ -15,19 +15,20 @@ import Metashape
 Metashape.app.gpu_mask = 1 # Default On
 
 def GenerateOrthoImage():
-    """ Genereate georeferenced Orthomosaic \n """   
+    """ Genereate Orthomosaic \n """   
     
     DataInfo = {
     'ID'                 : '20170815_CSI_4M', # User Defined Project Name
-    'DataPath'           : './InFolder/', # Root Data Folder
-    'OutFolder'          : './OutFolder/', # Output Folder
+    'DataPath'           : './InputPath/', # Root Data Folder
+    'OutFolder'          : './OutputPath/', # Output Folder
     'LoadContolPointFile': False, # Load Control Points (True/False)
     'ContolPointFile'    : './GCP.csv', # used if LoadContolPointFile == True
-    'OpenExistingProj'   : False, # required to run from an intermediate step (True/False)
-    'UseGPU'             : True, # GPU use status (True/False)
+    'OpenExistingProj'   : False, # required to run from an intermediate step mentioned below (True/False)
+    'Primary_Channel'    : 4, # Primary Channel
+    'EPSGcrs'            : 'EPSG::4326', # Reference System EPSG
     }
 
-    msp= MetaShapeProcessing(DataInfo).RunProcessing()    
+    msp= MetaShapeProcessing(DataInfo).GetInstance()    
     # load input images
     msp.LoadImagesFromFolder()
     # estimate camerea parameters
@@ -39,10 +40,9 @@ def GenerateOrthoImage():
     #  build mesh model
     msp.BuildMeshModel()
     #  build texture map
-    # msp.buildtexture()
+    msp.BuildTexture()
     # create orthorectified image
     msp.BuildOrthoImage()
-
 
 class MetaShapeProcessing():
     
@@ -67,13 +67,9 @@ class MetaShapeProcessing():
         self.LoadContolPointFile = DataInfo['LoadContolPointFile']
         self.WorkingFolder = DataInfo['OutFolder']
         self.OpenExistingProj = DataInfo['OpenExistingProj']
-        self.UseGPU = DataInfo['UseGPU']
-        self.primary_channel = 4
-        self.crs = Metashape.CoordinateSystem("EPSG::4326")
+        self.primary_channel = DataInfo['Primary_Channel']
+        self.crs = Metashape.CoordinateSystem(DataInfo['EPSGcrs'])
         self.IsNewProjectFile = True
-
-        if(self.UseGPU):
-            Metashape.app.gpu_mask = 1
 
         if not(os.path.exists(self.DataPath)):
             raise ValueError("No such source file path exists!")
@@ -276,14 +272,14 @@ class MetaShapeProcessing():
 
         # Generate DEM
         print("*** Build DEM - Started *** ", datetime.datetime.utcnow())
-        self.__BuildDEM('DEM')
+        self.BuildDEM('DEM')
         print("*** Build DEM - Finished *** ", datetime.datetime.utcnow())
         self.chunk.exportDem(os.path.join(self.WorkingFolder,self.ID,"DEM.tif"), nodata=-32767, write_kml=False, write_world=True)
         Metashape.app.update()
 
         # Generate DSM
         print("*** Build DSM - Started *** ", datetime.datetime.utcnow())
-        self.__BuildDEM('DSM')
+        self.BuildDEM('DSM')
         print("*** Build DSM - Finished *** ", datetime.datetime.utcnow())
         self.chunk.exportDem(os.path.join(self.WorkingFolder,self.ID,"DSM.tif"), nodata=-32767, write_kml=False, write_world=True)
         Metashape.app.update()
@@ -345,7 +341,7 @@ class MetaShapeProcessing():
 
         self.doc.save(path = os.path.join(self.WorkingFolder+self.ID+'.psx'), chunks = [self.doc.chunk])
     
-    def __buildtexture(self):
+    def BuildTexture(self):
         """ Build Texture Model \n
         
         Keyword Arguments: \n 
@@ -412,7 +408,7 @@ class MetaShapeProcessing():
                 fltr.resetSelection()
                 threshold += 1
                 continue
-            self.__UnselectPointMatch(chunk)
+            self.UnselectPointMatch(chunk)
             nselected = len([p for p in tie_points.points if p.selected])
             if nselected == 0:
                 break
@@ -507,7 +503,7 @@ class MetaShapeProcessing():
             threshold = init_threshold
             loopcnt = loopcnt+1.0
 
-    def __UnselectPointMatch(self, chunk, *band):
+    def UnselectPointMatch(self, chunk, *band):
         """ Unselect points which have less than a few projections \n
         
         Keyword Arguments: \n 
@@ -655,8 +651,8 @@ class MetaShapeProcessing():
                 marker.reference.location = Metashape.Vector([cx, cy, cz])
             print("Imported ground control points!")  #information message
 
-    def RunProcessing(self):
+    def GetInstance(self):
         return self
 
-
+# if __name__ == "__GenerateOrthoImage__":
 GenerateOrthoImage()
