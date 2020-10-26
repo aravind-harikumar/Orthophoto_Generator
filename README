@@ -5,5 +5,5 @@ python GenerateOrthoImage.py
 
 NOTES:
 a) Python version should be >= 3.7.
-b) Ensure that the following Python Packages exist in your Python Environment: datatime, numpy, pandas, and Metashape.
-c) 
+b) Ensure that the following Python packages exist in your Python Environment: datatime, numpy, pandas, and Metashape.
+c) Change data in/out path in the code.
