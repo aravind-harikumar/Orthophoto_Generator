@@ -353,6 +353,8 @@ class MetaShapeProcessing():
         self.chunk.buildTexture(blending = Metashape.MosaicBlending, size = 4096)
         Metashape.app.update()
         print("*** Build Texture - Finished *** ", datetime.datetime.utcnow())
+        
+        self.doc.save(path = os.path.join(self.WorkingFolder+self.ID+'.psx'), chunks = [self.doc.chunk])
 
     def BuildOrthoImage(self):
         """ Build Single OrthoMosaic Image From Individual Othophotos \n
