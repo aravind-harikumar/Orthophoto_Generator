@@ -19,10 +19,10 @@ def GenerateOrthoImage():
     
     DataInfo = {
     'ID'                 : '20170815_CSI_4M', # User Defined Project Name
-    'DataPath'           : '/media/ensmingerlabgpu/Seagate Backup Plus Drive/UAV/OntarioGenomics/FM/20170624/', # Root Data Folder
-    'OutFolder'          : '/media/ensmingerlabgpu/Seagate/2018/', # Output Folder
+    'DataPath'           : './InFolder/', # Root Data Folder
+    'OutFolder'          : './OutFolder/', # Output Folder
     'LoadContolPointFile': False, # Load Control Points (True/False)
-    'ContolPointFile'    : '/mnt/4TBHDD/Spruce_Up_New_Copy/SpruceUp/GPS/only_targets/SCA_GPS_final_edit_petra.csv', # used if LoadContolPointFile == True
+    'ContolPointFile'    : './GCP.csv', # used if LoadContolPointFile == True
     'OpenExistingProj'   : False, # required to run from an intermediate step (True/False)
     'UseGPU'             : True, # GPU use status (True/False)
     }
